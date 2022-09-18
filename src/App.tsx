@@ -7,6 +7,7 @@ function App() {
   return (
     <div>
       <FilePicker setObjectURL={setObjectURL} />
+      <p>creating thumbs every 1000ms</p>
       <Thumbnailer objectURL={objectURL} />
     </div>
   );

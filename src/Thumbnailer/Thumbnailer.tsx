@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { makeThumbs, ThumbnailData } from './makeThumbs';
 import { makeThumbList } from './makeThumbList';
 import { prepareCanvas } from './prepareCanvas';
 import { seek } from './seek';
@@ -8,6 +7,11 @@ class TypeGuardException extends Error {}
 
 interface ThumbnailerProps {
   objectURL: string;
+}
+
+export interface ThumbnailData {
+  timestamp: number;
+  blob: Blob;
 }
 
 const PUSH_NEW = 'push_new';
@@ -82,7 +86,7 @@ function Thumbnailer({ objectURL }: ThumbnailerProps) {
 }
 
 interface ThumbnailProps {
-  timestamp: string;
+  timestamp: number;
   blob: Blob;
 }
 
@@ -99,8 +103,18 @@ function Thumbnail({ timestamp, blob }: ThumbnailProps) {
   }, []);
 
   return (
-    <div style={{ width: '160px', margin: '2px' }}>
-      <p>{timestamp}</p>
+    <div style={{ width: '100px', margin: '0px' }}>
+      <p
+        style={{
+          position: 'absolute',
+          margin: '5px',
+          color: 'white',
+          backgroundColor: 'black',
+          fontSize: '0.8em',
+        }}
+      >
+        {timestamp * 1000}ms
+      </p>
       <img ref={imageRef} style={{ width: '100%' }} />
     </div>
   );
