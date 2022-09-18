@@ -4,7 +4,7 @@ interface FileLoaderProps {
   setObjectURL: (url: string) => void;
 }
 
-function FileLoader({ setObjectURL }: FileLoaderProps) {
+function FilePicker({ setObjectURL }: FileLoaderProps) {
   const { inputRef } = useFileInput({
     onSelection: (file) => {
       if (file) {
@@ -49,4 +49,4 @@ function FileLoader({ setObjectURL }: FileLoaderProps) {
   );
 }
 
-export default FileLoader;
+export default FilePicker;

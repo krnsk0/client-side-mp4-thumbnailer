@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import FileLoader from './FileLoader/FileLoader';
+import FilePicker from './FilePicker/FilePicker';
 import Thumbnailer from './Thumbnailer/Thumbnailer';
 
 function App() {
@@ -7,7 +7,7 @@ function App() {
   console.log('objectURL: ', objectURL);
   return (
     <div>
-      <FileLoader setObjectURL={setObjectURL} />
+      <FilePicker setObjectURL={setObjectURL} />
       <Thumbnailer objectURL={objectURL} />
     </div>
   );
