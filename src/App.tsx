@@ -4,7 +4,6 @@ import Thumbnailer from './Thumbnailer/Thumbnailer';
 
 function App() {
   const [objectURL, setObjectURL] = useState<string>('');
-  console.log('objectURL: ', objectURL);
   return (
     <div>
       <FilePicker setObjectURL={setObjectURL} />
