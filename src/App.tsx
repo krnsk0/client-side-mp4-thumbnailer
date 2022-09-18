@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import FilePicker from './FilePicker/FilePicker';
-import Thumbnailer from './Thumbnailer/Thumbnailer';
+import SequentialThumbnailer from './SequentialThumbnailer/SequentialThumbnailer';
 
 function App() {
   const [objectURL, setObjectURL] = useState<string>('');
@@ -8,7 +8,7 @@ function App() {
     <div>
       <FilePicker setObjectURL={setObjectURL} />
       <p>creating thumbs every 1000ms</p>
-      <Thumbnailer objectURL={objectURL} />
+      <SequentialThumbnailer objectURL={objectURL} />
     </div>
   );
 }

@@ -1,7 +1,7 @@
 import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
-import { makeThumbList } from './makeThumbList';
-import { prepareCanvas } from './prepareCanvas';
-import { seek } from './seek';
+import { makeThumbList } from '../shared/makeThumbList';
+import { prepareCanvas } from '../shared/prepareCanvas';
+import { seek } from '../shared/seek';
 
 class TypeGuardException extends Error {}
 
@@ -27,7 +27,7 @@ function reducer(
   }
 }
 
-function Thumbnailer({ objectURL }: ThumbnailerProps) {
+function SequentialThumbnailer({ objectURL }: ThumbnailerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [thumbData, thumbDispatch] = useReducer(reducer, []);
@@ -51,7 +51,7 @@ function Thumbnailer({ objectURL }: ThumbnailerProps) {
               thumbDispatch({
                 type: PUSH_NEW,
                 data: {
-                  timestamp: timestamp.toString(),
+                  timestamp,
                   blob,
                 },
               });
@@ -71,7 +71,8 @@ function Thumbnailer({ objectURL }: ThumbnailerProps) {
   }, [objectURL]);
 
   return (
-    <div>
+    <div style={{ border: '1px solid black', padding: '5px' }}>
+      <p>sequential video -{'>'} canvas thumbnailer</p>
       <video ref={videoRef} controls={false} style={{ display: 'none' }} />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
       <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
@@ -120,4 +121,4 @@ function Thumbnail({ timestamp, blob }: ThumbnailProps) {
   );
 }
 
-export default Thumbnailer;
+export default SequentialThumbnailer;
