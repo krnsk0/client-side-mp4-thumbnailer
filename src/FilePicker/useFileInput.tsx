@@ -1,6 +1,5 @@
 import { useEffect, useRef } from 'react';
-
-class TypeGuardException extends Error {}
+import { TypeGuardException } from '../shared/errors';
 
 interface UseFileInputOptions {
   onSelection: (file: File | undefined) => void;

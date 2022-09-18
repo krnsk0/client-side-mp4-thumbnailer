@@ -1,9 +1,9 @@
-import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { useEffect, useReducer, useRef } from 'react';
+import { TypeGuardException } from '../shared/errors';
 import { makeThumbList } from '../shared/makeThumbList';
-import { prepareCanvas } from '../shared/prepareCanvas';
-import { seek } from '../shared/seek';
-
-class TypeGuardException extends Error {}
+import Thumbnail from '../shared/Thumbnail';
+import { prepareCanvas } from './prepareCanvas';
+import { seek } from './seek';
 
 interface ThumbnailerProps {
   objectURL: string;
@@ -15,6 +15,7 @@ export interface ThumbnailData {
 }
 
 const PUSH_NEW = 'push_new';
+
 function reducer(
   state: ThumbnailData[],
   action: { type: string; data: ThumbnailData }
@@ -84,41 +85,6 @@ function SequentialThumbnailer({ objectURL }: ThumbnailerProps) {
           );
         })}
       </div>
-    </div>
-  );
-}
-
-interface ThumbnailProps {
-  timestamp: number;
-  blob: Blob;
-}
-
-function Thumbnail({ timestamp, blob }: ThumbnailProps) {
-  const imageRef = useRef<HTMLImageElement>(null);
-
-  useEffect(() => {
-    if (!imageRef.current) throw new TypeGuardException();
-    const url = URL.createObjectURL(blob);
-    imageRef.current.src = url;
-    return () => {
-      URL.revokeObjectURL(url);
-    };
-  }, []);
-
-  return (
-    <div style={{ width: '100px', margin: '0px' }}>
-      <p
-        style={{
-          position: 'absolute',
-          margin: '5px',
-          color: 'white',
-          backgroundColor: 'black',
-          fontSize: '0.8em',
-        }}
-      >
-        {timestamp * 1000}ms
-      </p>
-      <img ref={imageRef} style={{ width: '100%' }} />
     </div>
   );
 }
