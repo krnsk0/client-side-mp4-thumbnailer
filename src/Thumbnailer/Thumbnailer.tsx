@@ -1,17 +1,32 @@
-import { useEffect, useRef, useState } from 'react';
-import { makeThumbData, prepareCanvas, ThumbData } from './makeThumbData';
+import { useCallback, useEffect, useReducer, useRef, useState } from 'react';
+import { makeThumbs, ThumbnailData } from './makeThumbs';
 import { makeThumbList } from './makeThumbList';
+import { prepareCanvas } from './prepareCanvas';
+import { seek } from './seek';
 
 class TypeGuardException extends Error {}
 
 interface ThumbnailerProps {
   objectURL: string;
 }
+
+const PUSH_NEW = 'push_new';
+function reducer(
+  state: ThumbnailData[],
+  action: { type: string; data: ThumbnailData }
+) {
+  switch (action.type) {
+    case PUSH_NEW:
+      return [...state, action.data];
+    default:
+      throw new Error();
+  }
+}
+
 function Thumbnailer({ objectURL }: ThumbnailerProps) {
   const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
-
-  const [thumbData, setThumbData] = useState<ThumbData>({});
+  const [thumbData, thumbDispatch] = useReducer(reducer, []);
 
   useEffect(() => {
     if (!videoRef.current || !canvasRef.current) throw new TypeGuardException();
@@ -22,8 +37,26 @@ function Thumbnailer({ objectURL }: ThumbnailerProps) {
       const durationSec = video.duration;
       const thumblist = makeThumbList(durationSec);
       const { ctx } = prepareCanvas({ video, canvas });
-      const thumbData = await makeThumbData({ thumblist, video, canvas, ctx });
-      setThumbData(thumbData);
+      for (const timestamp of thumblist) {
+        await seek(video, timestamp);
+        ctx.drawImage(video, 0, 0, canvas.width, canvas.height);
+
+        canvas.toBlob(
+          (blob) => {
+            if (blob) {
+              thumbDispatch({
+                type: PUSH_NEW,
+                data: {
+                  timestamp: timestamp.toString(),
+                  blob,
+                },
+              });
+            }
+          },
+          'image/jpeg',
+          0.95
+        );
+      }
     };
 
     video.addEventListener('loadedmetadata', onLoadedMetadata);
@@ -38,7 +71,7 @@ function Thumbnailer({ objectURL }: ThumbnailerProps) {
       <video ref={videoRef} controls={false} style={{ display: 'none' }} />
       <canvas ref={canvasRef} style={{ display: 'none' }} />
       <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
-        {Object.entries(thumbData).map(([timestamp, blob]) => {
+        {thumbData.map(({ timestamp, blob }) => {
           return (
             <Thumbnail key={timestamp} timestamp={timestamp} blob={blob} />
           );
