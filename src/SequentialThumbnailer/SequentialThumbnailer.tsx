@@ -71,7 +71,9 @@ function SequentialThumbnailer({ objectURL }: ThumbnailerProps) {
   }, [objectURL]);
 
   return (
-    <div style={{ border: '1px solid black', padding: '5px' }}>
+    <div
+      style={{ border: '1px solid black', padding: '5px', marginTop: '1em' }}
+    >
       <p>sequential video -{'>'} canvas thumbnailer</p>
       <video ref={videoRef} controls={false} style={{ display: 'none' }} />
       <canvas ref={canvasRef} style={{ display: 'none' }} />

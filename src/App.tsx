@@ -5,11 +5,13 @@ import SequentialThumbnailer from './SequentialThumbnailer/SequentialThumbnailer
 function App() {
   const [objectURL, setObjectURL] = useState<string>('');
   return (
-    <div>
+    <>
+      <h1 style={{ fontSize: '1.2em' }}>
+        client-side mp4 thumbnailing techniques
+      </h1>
       <FilePicker setObjectURL={setObjectURL} />
-      <p>creating thumbs every 1000ms</p>
       <SequentialThumbnailer objectURL={objectURL} />
-    </div>
+    </>
   );
 }
 
