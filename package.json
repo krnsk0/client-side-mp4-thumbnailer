@@ -9,6 +9,7 @@
     "preview": "vite preview"
   },
   "dependencies": {
+    "@types/dom-webcodecs": "^0.1.4",
     "mp4box": "^0.5.2",
     "react": "^18.2.0",
     "react-dom": "^18.2.0"

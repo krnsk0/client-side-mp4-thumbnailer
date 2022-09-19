@@ -24,7 +24,7 @@ declare module 'mp4box' {
     height: number;
   }
 
-  interface MP4VideoTrack extends MP4MediaTrack {
+  export interface MP4VideoTrack extends MP4MediaTrack {
     video: MP4VideoData;
   }
 
@@ -126,6 +126,7 @@ declare module 'mp4box' {
 
     // TODO - enhance
     moov: any;
+    getTrackById: any;
   }
 
   export function createFile(): MP4File;

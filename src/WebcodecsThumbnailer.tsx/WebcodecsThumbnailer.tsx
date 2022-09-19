@@ -2,6 +2,7 @@ import { useEffect, useReducer, useRef } from 'react';
 import { TypeGuardException } from '../shared/errors';
 import { makeThumbList } from '../shared/makeThumbList';
 import Thumbnail from '../shared/Thumbnail';
+import { demux } from './demux';
 
 interface ThumbnailerProps {
   objectURL: string;
@@ -31,7 +32,35 @@ function WebcodecsThumbnailer({ objectURL }: ThumbnailerProps) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [thumbData, thumbDispatch] = useReducer(reducer, []);
 
-  useEffect(() => {}, [objectURL]);
+  useEffect(() => {
+    (async () => {
+      const response = await fetch(objectURL);
+      const blob = await response.blob();
+
+      const decoder = new VideoDecoder({
+        output: (frame: VideoFrame) => {
+          console.log('timestamp', frame.timestamp);
+          frame.close();
+        },
+        error: (error) => {
+          throw error;
+        },
+      });
+
+      await demux(blob, {
+        onDecoderConfigReady: (config) => {
+          console.log('configuring decoder', config);
+          decoder.configure(config);
+        },
+        onChunk: (chunk) => {
+          decoder.decode(chunk);
+        },
+      });
+
+      await decoder.flush();
+      console.log('DONE');
+    })();
+  }, [objectURL]);
 
   return (
     <div
