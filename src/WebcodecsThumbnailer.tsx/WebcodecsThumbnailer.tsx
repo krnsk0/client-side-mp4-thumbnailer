@@ -1,4 +1,5 @@
 import { useEffect, useReducer, useRef } from 'react';
+import { prepareCanvas } from './prepareCanvas';
 import { TypeGuardException } from '../shared/errors';
 import { makeThumbList } from '../shared/makeThumbList';
 import Thumbnail from '../shared/Thumbnail';
@@ -28,7 +29,6 @@ function reducer(
 }
 
 function WebcodecsThumbnailer({ objectURL }: ThumbnailerProps) {
-  const videoRef = useRef<HTMLVideoElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [thumbData, thumbDispatch] = useReducer(reducer, []);
 
@@ -36,10 +36,39 @@ function WebcodecsThumbnailer({ objectURL }: ThumbnailerProps) {
     (async () => {
       const response = await fetch(objectURL);
       const blob = await response.blob();
+      const canvas = canvasRef.current;
+      if (!canvas) throw new TypeGuardException();
+      const { ctx, video } = await prepareCanvas({ objectURL, canvas });
+      const thumblist = makeThumbList(video.duration);
+      let indexOfSoughtThumbnail = 0;
 
       const decoder = new VideoDecoder({
         output: (frame: VideoFrame) => {
-          console.log('timestamp', frame.timestamp);
+          ctx.drawImage(frame, 0, 0, canvas.width, canvas.height);
+          const timestamp = frame.timestamp;
+          if (!timestamp) throw new TypeGuardException();
+
+          const soughtThumbnail = thumblist[indexOfSoughtThumbnail] * 1000;
+
+          if (timestamp >= soughtThumbnail) {
+            canvas.toBlob(
+              (blob) => {
+                if (blob) {
+                  thumbDispatch({
+                    type: PUSH_NEW,
+                    data: {
+                      timestamp: soughtThumbnail,
+                      blob,
+                    },
+                  });
+                }
+              },
+              'image/jpeg',
+              0.95
+            );
+            indexOfSoughtThumbnail += 1;
+          }
+
           frame.close();
         },
         error: (error) => {
@@ -58,7 +87,6 @@ function WebcodecsThumbnailer({ objectURL }: ThumbnailerProps) {
       });
 
       await decoder.flush();
-      console.log('DONE');
     })();
   }, [objectURL]);
 
@@ -67,10 +95,20 @@ function WebcodecsThumbnailer({ objectURL }: ThumbnailerProps) {
       style={{ border: '1px solid black', padding: '5px', marginTop: '1em' }}
     >
       <p>webcodecs thumbnailer</p>
+      <canvas
+        ref={canvasRef}
+        style={{
+          display: 'none',
+        }}
+      />
       <div style={{ display: 'flex', flexDirection: 'row', flexWrap: 'wrap' }}>
         {thumbData.map(({ timestamp, blob }) => {
           return (
-            <Thumbnail key={timestamp} timestamp={timestamp} blob={blob} />
+            <Thumbnail
+              key={timestamp}
+              timestamp={timestamp / 1000}
+              blob={blob}
+            />
           );
         })}
       </div>
